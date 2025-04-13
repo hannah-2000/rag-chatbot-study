@@ -15,8 +15,6 @@ class AnswerGenerator:
         
         self.llm = llm
 
-
-        # Define the prompt template
         self.prompt_template = PromptTemplate(
             input_variables=["query", "context"],
             template=(
@@ -59,32 +57,8 @@ class AnswerGenerator:
                 "{query}"
             )
         )
-        #self.chain = LLMChain(llm=self.llm, prompt=self.prompt_template) OLD
-        #self.chain = RunnableSequence(first=self.prompt_template, second=self.llm)
         self.chain = self.prompt_template | self.llm
 
-    # def generate_answer(self, query, retrieved_docs):
-    #     '''
-    #     Generates an answer based on the query and retrieved documents.
-
-    #     Parameters:
-    #         query (str): The user's query.
-    #         retrieved_docs (List[Document]): List of retrieved documents.
-
-    #     Returns:
-    #         str: The generated answer.
-    #     '''
-    #     # Combine retrieved documents into a single context string
-    #     context = "\n".join(
-    #         f"- {doc.page_content} (Source: {doc.metadata})"
-    #         for doc in retrieved_docs
-    #     )
-
-    #     # Generate answer using the LLM
-    #     return self.chain.invoke({"query": query, "context": context})
-
-
-    #OLD including all the sources 
     def generate_answer(self, query, retrieved_docs):
         '''
         Generates an answer based on the query and retrieved documents.
@@ -96,81 +70,16 @@ class AnswerGenerator:
         Returns:
             str: The generated answer with properly formatted sources.
         '''
-        # Extract and format source metadata
-        sources = set()
+
         formatted_context = []
 
         for doc in retrieved_docs:
-        #     metadata = doc.metadata
-        #     course = metadata.get("course", "Unknown Course")
-        #     lecture = metadata.get("lecture", "Unknown Lecture")
-        #     semester = metadata.get("semester", "Unknown Semester")
-
-        #     # Ensure uniform source formatting
-        #     source_info = f" {course} - {lecture} ({semester})"
-        #     sources.add(source_info)
-
-        #     # Append page content with metadata
-              #formatted_context.append(f"- {doc.page_content}")
+       
               formatted_context.append(f"- {doc.page_content} (Source: {doc.metadata})")
-
-        #     print("SOURCEINFO", source_info)
-
-        # # Join the retrieved document text into one context string
         context = "\n".join(formatted_context)
-        print("*************FORMATTED CONTEXT***********")
-        print(context)
-        print("*************FORMATTED CONTEXT ENDE***********")
-        # Generate answer using the LLM
+
+        # Generate answer 
         response = self.chain.invoke({"query": query, "context": context})
 
-        # Append formatted sources at the end of the response
-        # if sources:
-        #     response += f"\n\n**Sources:**\n" + "\n".join(sources)
-
         return response
-    #OLD Ende
-
-    # #NEW function including only important metadat for soruces
-    # def generate_answer(self, query, retrieved_docs):
-    #     '''
-    #     Generates an answer based on the query and retrieved documents.
-
-    #     Parameters:
-    #         query (str): The user's query.
-    #         retrieved_docs (List[Document]): List of retrieved documents.
-
-    #     Returns:
-    #         str: The generated answer with properly formatted sources.
-    #     '''
-    #     # Extract and format only the required metadata fields
-    #     sources = set()
-    #     formatted_context = []
-
-    #     for doc in retrieved_docs:
-    #         metadata = doc.metadata
-
-    #         # Extract only the required metadata fields
-    #         semester = metadata.get("semester", "Unknown Semester")
-    #         course = metadata.get("course", "Unknown Course")
-    #         lecture = metadata.get("lecture", "Unknown Lecture")
-    #         pages = metadata.get("page", "Unknown Page")
-
-    #         # Ensure uniform source formatting
-    #         source_info = f"('course': '{course}', 'lecture': '{lecture}', 'semester': '{semester}', 'page': '{pages}')"
-    #         sources.add(source_info)
-
-    #         # Append page content with metadata
-    #         formatted_context.append(f"- {doc.page_content}")
-
-    #     # Join the retrieved document text into one context string
-    #     context = "\n".join(formatted_context)
-
-    #     # Generate answer using the LLM
-    #     response = self.chain.invoke({"query": query, "context": context})
-
-    #     # Append formatted sources at the end of the response
-    #     if sources:
-    #         response += f"\n\n**Sources:**\n" + "\n".join(sources)
-
-    #     return response
+   

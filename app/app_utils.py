@@ -2,31 +2,12 @@ import streamlit as st
 import json
 import requests
 import base64
-import subprocess
-import os
 from datetime import datetime
 
 
 def setup_page_config():
     """Configure the Streamlit page"""
     st.set_page_config(page_title="Study: Chatbot Evaluation", layout="wide")
-
-def download_and_unzip_data():
-    """Download embeddings from google drive"""
-    file_id = st.secrets["google_drive"]["file_id"]
-    zip_path = "data.zip"
-    
-    
-    subprocess.run(["pip", "install", "gdown"])
-    subprocess.run(["gdown", f"https://drive.google.com/uc?id={file_id}&confirm=t", "-O", zip_path])
-
-    subprocess.run(["unzip", "-o", zip_path])
-    
-    for root, dirs, files in os.walk(".", topdown=True):
-        for name in dirs:
-            print("DIR:", os.path.join(root, name))
-        for name in files:
-            print("FILE:", os.path.join(root, name))
 
 def log_entry(entry: dict):
     """Add a timestamped log entry to the session state logs"""
@@ -35,13 +16,6 @@ def log_entry(entry: dict):
     entry["study_id"] = st.session_state.study_id
     st.session_state.logs.append(entry)
 
-# def export_logs():
-#     """Export logs to a local JSON file"""
-#     print("SAVED TO LOCAL")
-#     filename = f"study_log_{st.session_state.study_id}.json"
-#     with open(filename, "w") as f:
-#         json.dump(st.session_state.logs, f, indent=2)
-#     return filename
 
 def export_logs_github():
     """Export logs to GitHub"""

@@ -1,7 +1,6 @@
 import streamlit as st
 from typing import List, Dict, Any
 
-# ----- Chat UI Components -----
 
 def display_chat_history(chat_history: List[Any]):
     """Display the chat history in the Streamlit UI"""
@@ -26,7 +25,6 @@ def display_assistant_message(message: str):
     """Display an assistant message in the chat UI"""
     st.chat_message("assistant").markdown(message)
 
-# ----- Filter & Search Functionality -----
 
 def create_filters(vectorstore):
     """Create search filters based on user selections in the sidebar"""
@@ -65,7 +63,6 @@ def get_filter_options(_vectorstore):
     lectures = sorted(set(m.get("lecture", "") for m in metadata if "lecture" in m))
     return metadata, courses, semesters, lectures
 
-# ----- Query Processing -----
 
 def process_query(pipeline, query: str, search_mode: str, filters: Dict[str, Any]):
     """Process a query with the pipeline and return the result"""

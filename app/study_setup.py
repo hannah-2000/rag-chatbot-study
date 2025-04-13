@@ -2,7 +2,6 @@ import streamlit as st
 import random
 import uuid
 import secrets
-
 from chatbot_setup import handle_chat_interaction
 from app_utils import log_entry, export_logs_github, save_participation_code
 
@@ -36,7 +35,6 @@ POST_QUESTIONNAIRE = [
     {"question": "Any further comments (functionalities that you found or would find helpful, performance of the tool, things that where missing, ...)? ", "type": "text"}
 ]
 
-# ----- Study State Management -----
 
 def initialize_study():
     """Initialize study session state variables if they don't exist"""
@@ -60,7 +58,7 @@ def get_current_method():
     """Get the search method for the current task"""
     if isinstance(st.session_state.current_task, int):
         return st.session_state.task_methods[st.session_state.current_task]
-    return "rag"  # Default to 'rag' for free exploration or non-task phase
+    return "rag"  
 
 def advance_task():
     """Move to the next task or to free exploration mode"""
@@ -74,7 +72,6 @@ def is_last_task():
     """Check if we're on the last task"""
     return isinstance(st.session_state.current_task, int) and st.session_state.current_task >= len(TASKS) - 1
 
-# ----- Questionnaire Rendering -----
 
 def render_questionnaire(questions, key_prefix=""):
     """Render a questionnaire in the Streamlit UI and collect responses"""
@@ -96,7 +93,6 @@ def render_questionnaire(questions, key_prefix=""):
 
     return responses
 
-# ----- Study Interface Components -----
 
 def show_intro():
     """Show the introduction page"""
@@ -108,6 +104,7 @@ def show_intro():
     - First you will complete a **start questionnaire** about your background and experience with AI-based search.
     - Then you will be given a few **tasks to solve** using the chatbot. The topics of those tasks have been covered in the mandatory modules of the Cognitive Science Bachelor program. Here are a few things to consider while trying to solve the tasks:
        - For each task you can enter as many queries as you want, they should be in english. 
+       - The chatbot does not have a memory, so you can not refer to previous answers or questions.
        - Don't worry if the chatbot does not find an answer for certain tasks. You can safely continue with the feedback questionair, even if you did not get a good answer.
        - It can take a few seconds until an answer is displayed on the screen after entering a query. Please wait for the answer, before you take any other action. 
     - After each task, you will answer a **quick feedback questionnaire** to the respective task and answers.
@@ -231,8 +228,7 @@ def show_post_questionnaire():
     responses = render_questionnaire(POST_QUESTIONNAIRE, key_prefix="post")
     if st.button("Submit Final Questionnaire and Finish"):
         log_entry({"type": "post_survey", "responses": responses})
-        #export_logs()  # locally
-        export_logs_github()  # to github
+        export_logs_github() 
         st.session_state.post_survey_done = True
         st.rerun()
 
@@ -243,21 +239,17 @@ def show_study_complete():
     save_participation_code(participation_code)
     st.success(f"Thank you for participating!\n\nYour confirmation code is: *`{participation_code}`*\n\n If you want to recieve VP hours, please save this code and send it to hopper@uni-osnabrueck.de along with your VP documentation paper. \n\nYou can now safely close this tab.")
 
-# ----- Main Study Flow -----
 
 def run_study_interface(pipeline, vectorstore):
     """Main function to run the study interface"""
-    # Intro page
     if "intro_shown" not in st.session_state:
         show_intro()
         return
 
-    # Pre-study questionnaire
     if "pre_survey_done" not in st.session_state:
         show_pre_questionnaire()
         return
 
-    # Task feedback
     if st.session_state.task_ready_for_feedback:
         show_task_feedback()
         return
@@ -267,7 +259,6 @@ def run_study_interface(pipeline, vectorstore):
         ("post_survey_done" not in st.session_state and st.session_state.get("current_task") == "free")
     )
 
-    # Handle free exploration phase independently
     if st.session_state.current_task == "free":
         if "free_exploration_done" not in st.session_state:
             show_free_exploration(pipeline, vectorstore)
@@ -279,5 +270,4 @@ def run_study_interface(pipeline, vectorstore):
             return
         return
 
-    # Task + Chatbot section
     show_task_interface(pipeline, vectorstore)
