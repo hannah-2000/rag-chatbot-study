@@ -1,9 +1,13 @@
+import sys
+import os
+if os.environ.get("STREAMLIT_ENV") == "cloud":
+    __import__("pysqlite3")
+    sys.modules["sqlite3"] = sys.modules.pop("pysqlite3")
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(BASE_DIR)
 import os
 import streamlit as st
 from langchain_chroma import Chroma
-import sys
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.append(BASE_DIR)
 from retrieval.pipeline import Pipeline
 from study_setup import initialize_study, run_study_interface
 from app_utils import setup_page_config
